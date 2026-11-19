@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
   List<Map<String, dynamic>> _products = [];
+  int _selectedNavbarIndex = 0;
 
   @override
   void initState() {
@@ -39,7 +42,9 @@ class _HomePageState extends State<HomePage> {
               'name': item['title'].toString(),
               'price': 'Rp ${(item['price'] * 15000).toStringAsFixed(0)}', // Konversi ke Rupiah tiruan
               'discount': '10%',
-              'rating': item['rating'] != null ? item['rating']['rate'].toString() : '4.8',
+              'rating': item['rating'] != null
+                  ? item['rating']['rate'].toString()
+                  : '4.8',
               'sold': '100+ terjual',
               'location': 'Kota Jakarta',
               'image': item['image'].toString(),
@@ -75,7 +80,7 @@ class _HomePageState extends State<HomePage> {
           'price': 100.0,
           'description': 'Produk Tokopedia Himitsu',
           'image': 'https://picsum.photos/200',
-          'category': 'electronic'
+          'category': 'electronic',
         }),
       );
 
@@ -142,13 +147,71 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildNavbarItem({
+    required int index,
+    required IconData icon,
+    required String label,
+  }) {
+    final bool isSelected = _selectedNavbarIndex == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedNavbarIndex = index;
+          });
+        },
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected
+                    ? const Color(0xFF00AA5B)
+                    : Colors.transparent,
+                width: 3,
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? const Color(0xFF00AA5B) : Colors.grey,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? const Color(0xFF00AA5B) : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- FORM DIALOG (CREATE & UPDATE) ---
   void _showProductForm({int? index, Map<String, dynamic>? product}) {
     final nameController = TextEditingController(text: product?['name'] ?? '');
-    final priceController = TextEditingController(text: product?['price'] ?? '');
-    final stockController = TextEditingController(text: product?['stock'] ?? '10 stok');
-    final locationController = TextEditingController(text: product?['location'] ?? 'Kota Bandung');
-    final discountController = TextEditingController(text: product?['discount'] ?? '10%');
+    final priceController = TextEditingController(
+      text: product?['price'] ?? '',
+    );
+    final stockController = TextEditingController(
+      text: product?['stock'] ?? '10 stok',
+    );
+    final locationController = TextEditingController(
+      text: product?['location'] ?? 'Kota Bandung',
+    );
+    final discountController = TextEditingController(
+      text: product?['discount'] ?? '10%',
+    );
 
     showModalBottomSheet(
       context: context,
@@ -173,7 +236,10 @@ class _HomePageState extends State<HomePage> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   index == null ? 'Tambah Produk Baru' : 'Edit Produk',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.close),
@@ -184,12 +250,18 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 8),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nama Produk', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Nama Produk',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: priceController,
-                decoration: const InputDecoration(labelText: 'Harga (Contoh: Rp 75.000)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Harga (Contoh: Rp 75.000)',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 12),
               Row(
@@ -197,14 +269,20 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TextField(
                       controller: stockController,
-                      decoration: const InputDecoration(labelText: 'Stok', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                        labelText: 'Stok',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: discountController,
-                      decoration: const InputDecoration(labelText: 'Diskon', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                        labelText: 'Diskon',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
                 ],
@@ -212,7 +290,10 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
               TextField(
                 controller: locationController,
-                decoration: const InputDecoration(labelText: 'Lokasi Toko', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Lokasi Toko',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -221,10 +302,14 @@ class _HomePageState extends State<HomePage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00AA5B),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: () {
-                    if (nameController.text.isEmpty || priceController.text.isEmpty) return;
+                    if (nameController.text.isEmpty ||
+                        priceController.text.isEmpty)
+                      return;
 
                     final newProductData = {
                       'name': nameController.text,
@@ -246,8 +331,14 @@ class _HomePageState extends State<HomePage> {
                     }
                   },
                   child: Text(
-                    index == null ? 'Simpan & Publikasikan' : 'Simpan Perubahan',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    index == null
+                        ? 'Simpan & Publikasikan'
+                        : 'Simpan Perubahan',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
@@ -288,6 +379,31 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            child: Row(
+              children: [
+                _buildNavbarItem(
+                  index: 0,
+                  icon: Icons.home_rounded,
+                  label: 'Beranda',
+                ),
+                _buildNavbarItem(
+                  index: 1,
+                  icon: Icons.inventory_2_rounded,
+                  label: 'Produk',
+                ),
+                _buildNavbarItem(
+                  index: 2,
+                  icon: Icons.person_rounded,
+                  label: 'Profil',
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(12),
@@ -296,7 +412,9 @@ class _HomePageState extends State<HomePage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00AA5B),
             padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: _isLoading ? null : () => _showProductForm(),
           child: const Row(
@@ -306,7 +424,11 @@ class _HomePageState extends State<HomePage> {
               SizedBox(width: 8),
               Text(
                 'Tambah Produk Baru',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ],
           ),
@@ -321,7 +443,11 @@ class _HomePageState extends State<HomePage> {
             color: const Color(0xFFE8F5E9),
             child: Row(
               children: [
-                const Icon(Icons.storefront_rounded, color: Color(0xFF00AA5B), size: 18),
+                const Icon(
+                  Icons.storefront_rounded,
+                  color: Color(0xFF00AA5B),
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Kelola Toko: ${_products.length} Produk Terdaftar',
@@ -336,20 +462,26 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: _isLoading && _products.isEmpty
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF00AA5B)))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF00AA5B)),
+                  )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8),
                     itemCount: _products.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.52,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.52,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
                     itemBuilder: (context, index) {
                       return ProductCard(
                         product: _products[index],
-                        onEdit: () => _showProductForm(index: index, product: _products[index]),
+                        onEdit: () => _showProductForm(
+                          index: index,
+                          product: _products[index],
+                        ),
                         onDelete: () => _deleteProduct(index),
                       );
                     },
@@ -397,34 +529,55 @@ class ProductCard extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
                   ),
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
                     child: Image.network(
                       product['image']!,
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Center(child: Icon(Icons.broken_image_rounded, size: 40, color: Colors.grey));
+                        return const Center(
+                          child: Icon(
+                            Icons.broken_image_rounded,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        );
                       },
                     ),
                   ),
                 ),
-                if (product['discount'] != null && product['discount'].toString().isNotEmpty)
+                if (product['discount'] != null &&
+                    product['discount'].toString().isNotEmpty)
                   Positioned(
                     top: 0,
                     left: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       decoration: const BoxDecoration(
                         color: Color(0xFFFFECEF),
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
                       ),
                       child: Text(
                         product['discount']!,
-                        style: const TextStyle(color: Color(0xFFFF3A44), fontWeight: FontWeight.bold, fontSize: 10),
+                        style: const TextStyle(
+                          color: Color(0xFFFF3A44),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -440,12 +593,20 @@ class ProductCard extends StatelessWidget {
                   product['name']!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF212121), height: 1.3),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF212121),
+                    height: 1.3,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   product['price']!,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF212121), fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF212121),
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -463,14 +624,24 @@ class ProductCard extends StatelessWidget {
                           minimumSize: const Size(0, 28),
                         ),
                         onPressed: onEdit,
-                        child: const Text('Edit', style: TextStyle(fontSize: 11, color: Color(0xFF00AA5B))),
+                        child: const Text(
+                          'Edit',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF00AA5B),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
                     IconButton(
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.all(4),
-                      icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: Colors.red,
+                      ),
                       onPressed: onDelete,
                     ),
                   ],
